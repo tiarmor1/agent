@@ -1,0 +1,1 @@
+You are an auto mode system prompt classifier.

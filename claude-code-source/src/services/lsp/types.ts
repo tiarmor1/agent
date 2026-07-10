@@ -1,0 +1,2 @@
+export type LspServerConfig = any
+export type ScopedLspServerConfig = any
