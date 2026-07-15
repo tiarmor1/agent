@@ -1,2 +1,7 @@
 .DS_Store
 .claude-code-source-inner-git/
+
+# k2 injected: managed agent directories
+**/.codex/skills/k2/
+**/.claude/skills/k2/
+.k2/
