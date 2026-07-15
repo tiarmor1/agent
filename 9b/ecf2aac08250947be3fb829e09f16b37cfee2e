@@ -1,0 +1,16 @@
+skill执行机制.md
+  h_a9cef54bcb6e09 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9becf2aac08250947be3fb829e09f16b37cfee2e",
+  "prompts": {},
+  "humans": {
+    "h_a9cef54bcb6e09": {
+      "author": "liyudong.lyd <liyudong.lyd@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
