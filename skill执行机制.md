@@ -8,7 +8,7 @@
 - 完整的主体能力描述，Markdown 形式存在。
 - 文件夹内的其他文件、脚本的（可选），可被主体文件通过名称声明使用。
 
-在 Agent 框架在启动时，会扫描所有的安装的 Skills，并将其 metadata（Skills Desciption）添加到 System Prompt 中。 简易实现和结构示意图如下：
+在 Agent 框架在启动时，会扫描所有的安装的 Skills，并将其 metadata（Skills Description）添加到 System Prompt 中。 简易实现和结构示意图如下：
 
 ```python
 class SkillRegistry:
