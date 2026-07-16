@@ -1,0 +1,16 @@
+test.md
+  h_a9cef54bcb6e09 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "63f583d0ba9a4e0ff9063e75bb07934e94a5e0cb",
+  "prompts": {},
+  "humans": {
+    "h_a9cef54bcb6e09": {
+      "author": "liyudong.lyd <liyudong.lyd@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
