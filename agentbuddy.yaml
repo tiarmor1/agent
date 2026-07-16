@@ -1,0 +1,11 @@
+schema: "1.0"
+extensions:
+  - identifier: skills:skills.byted.org/default/public/lark-whiteboard-illustrate:1.0.0
+    agents:
+      - claude-code
+      - trae
+      - trae-solo
+      - trae-cn
+      - trae-cli
+      - coco
+    link: copy

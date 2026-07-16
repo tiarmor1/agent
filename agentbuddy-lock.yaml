@@ -1,0 +1,14 @@
+lockfileVersion: "1.0"
+extensions:
+  - identifier: skills:skills.byted.org/default/public/lark-whiteboard-illustrate:1.0.0
+    agents:
+      - claude-code
+      - trae
+      - trae-solo
+      - trae-cn
+      - trae-cli
+      - coco
+    link: copy
+    source:
+      kind: zip
+      blob_digest: sha256:e5be6ad0dbbd1f2ba50d8c1abc3869dbd05423febf4beb5abca9614f8e4ebfb3
