@@ -7,6 +7,7 @@ https://github.com/anthropics/skills/tree/main/skills/skill-creator
 这些问题靠手动调试根本没法回答。
 Anthropic 自己显然也被这些问题折磨过，所以他们做了 skill-creator —— 一个用来批量制造和迭代改进 Skill 的 Skill。
 skill-creator 并不是新东西，它从 2025 年 10 月 Agent Skills 发布时就存在了。但当时它基本就是一个交互式的脚手架工具 —— 问你几个问题，帮你生成 SKILL.md 初稿，完事了。
+
 2026 年 2 月 25 日，Anthropic 悄悄推了一个大更新（PR #465），skill-creator 几乎被重写了。这次提交改动了 20 个文件，新增 5200+ 行代码，删掉了旧的 init_skill.py 脚手架，换上了一套完整的评估和优化工具链：
 - 三个专职评估 Agent（Grader / Comparator / Analyzer）—— 全部新增，之前不存在
 - 描述优化循环（run_loop.py + run_eval.py + improve_description.py）—— 全部新增，自动化调优 description 的触发精度
@@ -17,10 +18,12 @@ skill-creator 并不是新东西，它从 2025 年 10 月 Agent Skills 发布时
 更早的 2 月 6 日还有一个小更新（PR #350），加了 compatibility 字段、把 Skill 名最大长度从 40 放宽到 64 字符。
 换句话说，现在的 skill-creator 和一个月前的 skill-creator 已经不是同一个东西了。它从一个简单的模板生成器变成了一套完整的方法论和工具链：有结构化的创造流程，有三个专职评估 Agent，有量化的基准测试框架，有自动化的描述优化循环，甚至还有一个交互式的 HTML 仪表板让你审查每次运行的结果。
 这篇文章把更新后的 skill-creator 从里到外拆一遍 —— 不只看它做了什么，更要看它为什么这么做。
-一、Skill 快速回顾
+
+# 一、Skill 快速回顾
 先说清楚"Skill"是什么。
 在 Agent Skills 规范里，一个 Skill 就是一个文件夹，核心是一份 SKILL.md。这个文件分两部分：YAML 前置元数据（name + description）和 Markdown 正文。前置元数据里的 name 和 description 决定了 Agent 什么时候调用这个 Skill，正文则是具体的操作指南。
 一个标准的 SKILL.md 长这样：
+```XML
 ---
 name: pdf
 description: 处理 PDF 文件。用于读取、创建、合并或填写 PDF 表单。
@@ -40,6 +43,7 @@ pdftotext input.pdf -
 ## 注意事项
 - 处理大文件时考虑分批处理
 - 中文 PDF 可能需要指定字体路径
+
 简单来说，Skill 是 Agent 的外挂知识模块。不用重新训练模型，不用改代码，编辑一份 Markdown 就能改变 Agent 的行为模式。
 那问题来了：手写一个 Skill 和用 skill-creator 造一个 Skill，差别在哪？
 对比维度
@@ -87,11 +91,12 @@ skill-creator/
 └── assets/
     └── eval_review.html            # 描述优化评审 HTML 模板
 整套系统大约 2500 行 Python + 500 行 Markdown 规范。不算大，但每个文件都有明确的职责。
-二、核心工作流 —— Draft-Test-Evaluate-Improve
+
+# 二、核心工作流 —— Draft-Test-Evaluate-Improve
 这是 skill-creator 最核心的部分。一切围绕一个闭环运转：
 暂时无法在飞书文档外展示此内容
 逐阶段拆解。
-阶段一：Capture Intent
+## 阶段一：Capture Intent
 skill-creator 不会上来就让你写 SKILL.md。它先做一轮结构化访谈，围绕 4 个核心问题：
 1. 这个 Skill 让 Agent 做什么？ —— 明确能力边界
 2. 什么用户 prompt 应该触发它？ —— 定义触发条件
@@ -99,7 +104,8 @@ skill-creator 不会上来就让你写 SKILL.md。它先做一轮结构化访谈
 4. 需不需要设置测试用例？ —— 按 Skill 类型判断
 最后一个问题很有意思：skill-creator 会根据 Skill 的性质建议是否需要量化评估。如果你做的是"PDF 表单填写"这类有客观正确答案的 Skill，它会推荐搞测试用例；如果做的是"写作风格优化"这类主观性强的 Skill，它会建议以人工审查为主。
 还有一个场景：如果用户是在当前对话中说"把刚才的操作变成一个 Skill"，skill-creator 会直接从对话上下文里提取答案 —— 用了哪些工具、执行了什么步骤、用户做过哪些纠正、输入输出格式是什么。这比从零开始问一遍高效得多。
-阶段二：Draft
+
+## 阶段二：Draft
 基于访谈结果生成 SKILL.md。这里有几个写作原则值得注意。
 description 要"稍微激进一点"。skill-creator 的 SKILL.md 原文是这样说的：
 
@@ -110,7 +116,8 @@ SKILL.md body 控制在 500 行以内。超过了就拆到 references/ 目录下
 
 Try hard to explain the why behind everything you're asking the model to do. If you find yourself writing ALWAYS or NEVER in all caps, that's a yellow flag — reframe and explain the reasoning.
 这个我觉得是特别好的设计理念。与其写"ALWAYS use PyMuPDF"，不如写"PyMuPDF 比 pdftotext 好在哪里、什么场景下用什么"，让模型理解了道理之后自己做选择。
-阶段三：Test
+
+## 阶段三：Test
 测试阶段的设计很精巧。
 对每个测试用例，skill-creator 同时启动两个 Subagent —— 一个带 Skill 跑，一个不带 Skill 跑（或者如果是改进已有 Skill，就用旧版本作为基线）。两组并发执行，结果存到独立的目录里。
 为什么一定要跑基线？因为如果不跑基线，你根本不知道 Skill 到底有没有帮上忙。可能 Agent 不带 Skill 也能搞定这个任务，你的 Skill 只是增加了 token 开销而已。有了 A/B 对比，好坏一目了然。
@@ -147,16 +154,19 @@ pdf-filler-workspace/
     │       └── grading.json
     ├── benchmark.json              # 聚合统计
     └── feedback.json               # 用户反馈
-阶段四：Evaluate
+
+## 阶段四：Evaluate
 三个 Agent 分工协作，下一节细说。
-阶段五：Improve → 循环
+
+## 阶段五：Improve → 循环
 读取 feedback.json 中的用户反馈。空反馈意味着"没意见"，focus 修改的重点放在用户有具体抱怨的测试用例上。
 skill-creator 对改进 Skill 有几条指导原则，我觉得写得特别实在：
 从反馈中泛化，而不是逐条修补。原文说得很直白：如果你只是针对这几个测试用例做 overfitting 式的修改，那这个 Skill 用到其他场景上就废了。要从失败中抽象出更通用的规律。
 保持精简。如果某个指令在转录（transcript）里看起来一直在让 Agent 做无用功，就大胆删掉。
 观察重复工作。如果三个测试用例跑下来，每个 Subagent 都独立写了一个类似的 create_docx.py，那就说明这个脚本应该被提取出来放到 scripts/ 目录里，让 Skill 直接调用。
 循环退出的三个条件：用户说满意了、反馈全空、或者连续几轮没有明显进步。
-三、三层渐进式加载
+
+# 三、三层渐进式加载
 Agent Skills 规范用了一个叫渐进式加载（Progressive Disclosure）的策略。这里从 skill-creator 的视角看它怎么被具体运用，以及为什么 L1 层（description）的设计如此重要。
 Agent 在处理用户请求时，不会一股脑把所有 Skill 的完整内容塞进上下文。上下文窗口的空间是有限的，如果装了 50 个 Skill 的全文，光 Skill 内容就占掉大半窗口了。实际策略是分三层按需加载：
 暂时无法在飞书文档外展示此内容
