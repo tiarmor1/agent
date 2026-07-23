@@ -1,0 +1,18 @@
+articles/打造你的超级Agent.md
+  h_a9cef54bcb6e09 408-409,477,483,502-503
+articles/skill-creator解析.md
+  h_a9cef54bcb6e09 26,46,94-95,99,107-108,119-120,157-158,160-161,168-169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e081a49537d167bbceddc5545dfe31f8b765a4ec",
+  "prompts": {},
+  "humans": {
+    "h_a9cef54bcb6e09": {
+      "author": "liyudong.lyd <liyudong.lyd@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
