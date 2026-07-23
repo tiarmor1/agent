@@ -1,0 +1,30 @@
+articles/skill-creator解析.md
+  h_a9cef54bcb6e09 1-496
+articles/打造你的超级Agent.md
+  h_a9cef54bcb6e09 231-232,236-237,239-240,348,352,360-361,383,389-391,396-397
+  s_e55cc0108352ff::t_6596cd24c1f83f 228
+  s_e55cc0108352ff::t_b9b0bbf529e357 225-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "da674460b87ebe7e5d935d052ca130a6824605ff",
+  "prompts": {},
+  "humans": {
+    "h_a9cef54bcb6e09": {
+      "author": "liyudong.lyd <liyudong.lyd@bytedance.com>"
+    }
+  },
+  "sessions": {
+    "s_e55cc0108352ff": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-fa80c21d-39c6-4860-a767-0d4e24b899b9",
+        "model": "default"
+      },
+      "human_author": "liyudong.lyd <liyudong.lyd@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
